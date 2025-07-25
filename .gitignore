@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc 
+.env
+ml/model.pkl
+data/housing_data.csv

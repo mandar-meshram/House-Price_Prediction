@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>House Price Predictor</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+    <h2>House Price Predictor</h2>
+    <form method="post" action="/predict" onsubmit="predictPrice(event)">
+        <label>Location:</label>
+        <input type="text" name="location" required><br>
+        <label>Area (sqft):</label>
+        <input type="number" name="area" required><br>
+        <label>Bedrooms:</label>
+        <input type="number" name="bedrooms" required><br>
+        <label>Bathrooms:</label>
+        <input type="number" name="bathrooms" required><br>
+        <label>Furnishing:</label>
+        <select name="furnishing">
+            <option value="furnished">Furnished</option>
+            <option value="semi-furnished">Semi-Furnished</option>
+            <option value="unfurnished">Unfurnished</option>
+        </select><br><br>
+        <button type="submit">Predict</button>
+    </form>
+    <h3 id="result"></h3>
+
+    <script>
+      async function predictPrice(event) {
+        event.preventDefault();
+        const form = event.target.form || event.target;
+        const formData = new FormData(form);
+
+        const jsonData = {
+          location: formData.get("location"),
+          area: parseFloat(formData.get("area")),
+          bedrooms: parseInt(formData.get("bedrooms")),
+          bathrooms: parseInt(formData.get("bathrooms")),
+          furnishing: formData.get("furnishing")
+        };
+
+        const res = await fetch("/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jsonData)
+        });
+
+        const data = await res.json();
+        document.getElementById("result").innerText = `Estimated Price: ₹ ${data.price.toLocaleString()}`;
+      }
+    </script>
+</body>
+</html>
