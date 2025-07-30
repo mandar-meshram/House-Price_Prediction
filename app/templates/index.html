@@ -1,53 +1,200 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>House Price Predictor</title>
-    <link rel="stylesheet" href="/static/css/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        /* Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background: #fff;
+            max-width: 480px;
+            width: 100%;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: rgba(118, 75, 162, 0.15);
+            border-radius: 50%;
+            filter: blur(40px);
+            z-index: 0;
+        }
+
+        h2 {
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #764ba2;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        form {
+            position: relative;
+            z-index: 1;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+            user-select: none;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            outline-offset: 2px;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 6px #764ba2aa;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.35s ease, transform 0.25s ease;
+            user-select: none;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            transform: scale(1.05);
+        }
+
+        #result {
+            margin-top: 28px;
+            padding: 18px 25px;
+            background: #f0eaff;
+            border-left: 6px solid #764ba2;
+            border-radius: 8px;
+            font-size: 22px;
+            font-weight: 600;
+            color: #4b2e83;
+            text-align: center;
+            user-select: text;
+            min-height: 50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 520px) {
+            .container {
+                padding: 30px 20px;
+            }
+            button {
+                font-size: 16px;
+                padding: 12px;
+            }
+            #result {
+                font-size: 18px;
+                padding: 15px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>House Price Predictor</h2>
-    <form method="post" action="/predict" onsubmit="predictPrice(event)">
-        <label>Location:</label>
-        <input type="text" name="location" required><br>
-        <label>Area (sqft):</label>
-        <input type="number" name="area" required><br>
-        <label>Bedrooms:</label>
-        <input type="number" name="bedrooms" required><br>
-        <label>Bathrooms:</label>
-        <input type="number" name="bathrooms" required><br>
-        <label>Furnishing:</label>
-        <select name="furnishing">
-            <option value="furnished">Furnished</option>
-            <option value="semi-furnished">Semi-Furnished</option>
-            <option value="unfurnished">Unfurnished</option>
-        </select><br><br>
-        <button type="submit">Predict</button>
-    </form>
-    <h3 id="result"></h3>
+    <div class="container">
+        <h2>House Price Predictor</h2>
+        <form method="post" action="/predict" onsubmit="predictPrice(event)" novalidate>
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" required placeholder="Enter location" autocomplete="off" />
+            
+            <label for="area">Area (sqft)</label>
+            <input type="number" id="area" name="area" required min="1" placeholder="e.g., 1200" />
 
+            <label for="bedrooms">Bedrooms</label>
+            <input type="number" id="bedrooms" name="bedrooms" required min="0" placeholder="Number of bedrooms" />
+
+            <label for="bathrooms">Bathrooms</label>
+            <input type="number" id="bathrooms" name="bathrooms" required min="0" placeholder="Number of bathrooms" />
+
+            <label for="furnishing">Furnishing</label>
+            <select id="furnishing" name="furnishing" required>
+                <option value="" disabled selected>Select furnishing</option>
+                <option value="furnished">Furnished</option>
+                <option value="semi-furnished">Semi-Furnished</option>
+                <option value="unfurnished">Unfurnished</option>
+            </select>
+
+            <button type="submit">Predict</button>
+        </form>
+        <h3 id="result"></h3>
+    </div>
+
+    <!-- The script remains unchanged -->
     <script>
-      async function predictPrice(event) {
-        event.preventDefault();
-        const form = event.target.form || event.target;
-        const formData = new FormData(form);
+        async function predictPrice(event) {
+            event.preventDefault();
+            const form = event.target.form || event.target;
+            const formData = new FormData(form);
 
-        const jsonData = {
-          location: formData.get("location"),
-          area: parseFloat(formData.get("area")),
-          bedrooms: parseInt(formData.get("bedrooms")),
-          bathrooms: parseInt(formData.get("bathrooms")),
-          furnishing: formData.get("furnishing")
-        };
+            const jsonData = {
+                location: formData.get("location"),
+                area: parseFloat(formData.get("area")),
+                bedrooms: parseInt(formData.get("bedrooms")),
+                bathrooms: parseInt(formData.get("bathrooms")),
+                furnishing: formData.get("furnishing")
+            };
 
-        const res = await fetch("/predict", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(jsonData)
-        });
+            const res = await fetch("/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(jsonData)
+            });
 
-        const data = await res.json();
-        document.getElementById("result").innerText = `Estimated Price: ₹ ${data.price.toLocaleString()}`;
-      }
+            const data = await res.json();
+            document.getElementById("result").innerText = `Estimated Price: ₹ ${data.price.toLocaleString("en-IN")}`;
+        }
     </script>
 </body>
 </html>

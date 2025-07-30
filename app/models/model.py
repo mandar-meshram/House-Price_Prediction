@@ -3,6 +3,7 @@ import pickle
 from app.schemas.request_response import HouseFeatures
 from app.services.preprocessing import preprocess_input
 from app.exceptions.custom_exceptions import ModelNotLoadedException
+import pandas as pd
 
 
 MODEL_PATH = "ml/model.pkl"
@@ -18,6 +19,18 @@ def get_model():
     return _model
 
 def predict_price(model, features: HouseFeatures) -> float:
-    input_df = preprocess_input(features)
-    result = model.predict(input_df)
-    return round(result[0], 2)
+    df = pd.DataFrame([features.dict()])
+
+    df['location'] = df['location'].str.lower()
+    df['furnishing'] = df['furnishing'].str.lower()
+
+    df = pd.get_dummies(df, columns=['location', 'furnishing'])
+
+    with open("ml/features.pkl", "rb") as f:
+        feature_columns = pickle.load(f)
+
+    df = df.reindex(columns=feature_columns, fill_value=0)
+
+    prediction = model.predict(df)
+
+    return float(prediction[0])
